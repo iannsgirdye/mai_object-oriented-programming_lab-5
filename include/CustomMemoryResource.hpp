@@ -18,8 +18,6 @@ class CustomMemoryResource: public std::pmr::memory_resource {
     void *memory_;             // указатель буфер
     size_t size_;              // размер буфера
     std::list<block> blocks_;  // список блоков
-  
-    void mergeFreeBlocks();
 
     void insertFreeBlockBefore(auto iter, size_t aligned_gap) {
       blocks_.insert(iter, block(iter->ptr_, aligned_gap, true));
@@ -85,7 +83,29 @@ class CustomMemoryResource: public std::pmr::memory_resource {
     }
 
     // Освобождение памяти
-    void do_deallocate(void *ptr, size_t bytes, size_t alignment) override;
+    void do_deallocate(void *ptr, size_t bytes, size_t alignment) override {
+      for (auto iter = blocks_.begin(); iter != blocks_.end(); ++iter) {
+        if (iter->ptr_ == ptr && iter->size_ == bytes) {
+          if (iter != blocks_.begin()) {
+            auto prev_iter = std::prev(iter);
+            if (prev_iter->is_free_) {
+              iter->size_ += prev_iter->size_;
+              iter->ptr_ = prev_iter->ptr_;
+              blocks_.erase(prev_iter);
+            }
+          }
+          
+          if (iter != std::prev(blocks_.end())) {
+            auto next_iter = std::next(iter);
+            if (next_iter->is_free_) {
+              iter->size_ += next_iter->size_;
+              blocks_.erase(next_iter);
+            }
+          }
+          iter->is_free_ = true;
+        }
+      }
+    }
 
     // Сравнение с другим memory_resource
     bool do_is_equal(const std::pmr::memory_resource &other) const noexcept override;
