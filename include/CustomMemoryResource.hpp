@@ -8,9 +8,9 @@ class CustomMemoryResource: public std::pmr::memory_resource {
   private:
     // блок в буфере
     struct block {
-      void *ptr_;  // указатель на начало
-      size_t size_;    // размер
-      bool is_free_;   // статус
+      void *ptr_;     // указатель на начало
+      size_t size_;   // размер
+      bool is_free_;  // статус
 
       block(void *ptr, size_t size, bool is_free = false): ptr_(ptr), size_(size), is_free_(is_free) {}
     };
@@ -87,7 +87,7 @@ class CustomMemoryResource: public std::pmr::memory_resource {
       if (ptr == nullptr || bytes == 0) {
         return;
       }
-      
+
       for (auto iter = blocks_.begin(); iter != blocks_.end(); ++iter) {
         if (iter->ptr_ == ptr && iter->size_ == bytes) {
           if (iter != blocks_.begin()) {
