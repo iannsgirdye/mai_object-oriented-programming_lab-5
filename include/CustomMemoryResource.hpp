@@ -30,8 +30,8 @@ class CustomMemoryResource: public std::pmr::memory_resource {
     }
 
     void insertFreeBlockAfter(auto iter, void *aligned_ptr, size_t bytes, size_t aligned_size) {
-      const size_t remaining_size = aligned_size - bytes;
-      const void *remaining_ptr = static_cast<char *>(aligned_ptr) + bytes;
+      size_t remaining_size = aligned_size - bytes;
+      void *remaining_ptr = static_cast<void *>(static_cast<char *>(aligned_ptr) + bytes);
       blocks_.insert(std::next(iter), block(remaining_ptr, remaining_size, true));
     }
 
@@ -106,6 +106,7 @@ class CustomMemoryResource: public std::pmr::memory_resource {
               blocks_.erase(next_iter);
             }
           }
+          
           iter->is_free_ = true;
         }
       }
