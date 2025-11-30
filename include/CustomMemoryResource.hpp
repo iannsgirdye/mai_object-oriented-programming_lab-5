@@ -17,7 +17,7 @@ class CustomMemoryResource: public std::pmr::memory_resource {
     
     void *memory_;             // указатель буфер
     size_t size_;              // размер буфера
-    size_t offset_;            // количество распределённых байтов
+    size_t offset_ = 0;        // количество распределённых байтов
     std::list<block> blocks_;  // список блоков
   
     void mergeFreeBlocks();
@@ -47,6 +47,8 @@ class CustomMemoryResource: public std::pmr::memory_resource {
     }
 
   public:
+    CustomMemoryResource(size_t size): size_(size), memory_(static_cast<void *>(new char[size])) {}
+
     // Выделение памяти с заданным выравниванием
     void *do_allocate(size_t bytes, size_t alignment) override {
       if (bytes == 0) {
