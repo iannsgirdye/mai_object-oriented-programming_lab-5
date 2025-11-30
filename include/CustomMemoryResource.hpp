@@ -84,6 +84,10 @@ class CustomMemoryResource: public std::pmr::memory_resource {
 
     // Освобождение памяти
     void do_deallocate(void *ptr, size_t bytes, size_t alignment) override {
+      if (ptr == nullptr || bytes == 0) {
+        return;
+      }
+      
       for (auto iter = blocks_.begin(); iter != blocks_.end(); ++iter) {
         if (iter->ptr_ == ptr && iter->size_ == bytes) {
           if (iter != blocks_.begin()) {
