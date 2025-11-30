@@ -44,6 +44,10 @@ class CustomMemoryResource: public std::pmr::memory_resource {
       blocks_.push_back(block(memory_, size, true));
     }
 
+    ~CustomMemoryResource() {
+      delete[] static_cast<char *>(memory_);
+    }
+
     // Выделение памяти с заданным выравниванием
     void *do_allocate(size_t bytes, size_t alignment) override {
       if (bytes == 0) {
