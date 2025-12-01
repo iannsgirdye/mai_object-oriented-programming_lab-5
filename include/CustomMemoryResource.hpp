@@ -67,13 +67,12 @@ class CustomMemoryResource: public std::pmr::memory_resource {
               insertFreeBlockBefore(iter, aligned_gap);
             }
             
-            updateCurrentBlock(iter, bytes, aligned_ptr);
-
             aligned_size = iter->size_ - aligned_gap;
             if (aligned_size > bytes) {
               insertFreeBlockAfter(iter, aligned_ptr, bytes, aligned_size);
             }
 
+            updateCurrentBlock(iter, bytes, aligned_ptr);
             return aligned_ptr;
           }
         }
