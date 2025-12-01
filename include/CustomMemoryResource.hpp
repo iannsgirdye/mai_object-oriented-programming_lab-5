@@ -89,7 +89,9 @@ class CustomMemoryResource: public std::pmr::memory_resource {
       }
 
       for (auto iter = blocks_.begin(); iter != blocks_.end(); ++iter) {
-        if (iter->ptr_ == ptr && iter->size_ == bytes) {
+        if (iter->ptr_ == ptr && iter->size_ == bytes && !(iter->is_free_)) {
+          iter->is_free_ = true;
+
           if (iter != blocks_.begin()) {
             auto prev_iter = std::prev(iter);
             if (prev_iter->is_free_) {
@@ -106,8 +108,8 @@ class CustomMemoryResource: public std::pmr::memory_resource {
               blocks_.erase(next_iter);
             }
           }
-          
-          iter->is_free_ = true;
+
+          return;
         }
       }
     }
